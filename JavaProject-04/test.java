@@ -4,60 +4,56 @@ import java.util.Scanner;
 
 import static java.lang.Thread.sleep;
 
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
-public class Main {
+public class test {
     public static void main(String[] args) {
 
         //Making cards obj
-        Cards cards = null;
+        caards cards;
         try {
-            cards = new Cards();
+            cards = new caards();
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-
-
     }
 }
 
-class Cards{
+class caards {
     String[] cards = {"1","2","3","4","5","6","7","8","9","10","J","Q","K","A"};
     String[] sixRandomCards = new String[6];
     final byte NUMBER_OF_CARDS = 2; //Max card 14 allowed
     final byte DECK_SIZE = NUMBER_OF_CARDS * 2;
-    String deck[] = new String[DECK_SIZE];
-    String starCard[] = new String[DECK_SIZE];
+    String deck[] = new String[DECK_SIZE]; //Main deck
+    String starCard[] = new String[DECK_SIZE]; //Alternate blind card deck
     Scanner sc = new Scanner(System.in);
+    byte memorizeTime = 3; // Memorizing time in second
 
     //Making Six Random Cards Deck
-    Cards() throws InterruptedException {
+    caards() throws InterruptedException {
         takingCards(); // Select random card
         doublingDeck(); //Creates main deck
         shuffleDeck(); // Shuffles main deck
         starCards(); // Generates star card deck
 
-        System.out.println("These cards will appear for 10s memorize this");
+        System.out.println("These cards will appear for "+memorizeTime +"s memorize this");
         System.out.println(Arrays.toString(deck));
         printCardNumber();
-        sleep(1*1000);
+        sleep(memorizeTime*1000);
         printBlankLines();
-
+        isAllCardsFlipped();
+    }
+    // Checks if all cards flipped. If not goes to selectTwoCards() function
+    public void isAllCardsFlipped(){
         while (true) {
             if(Arrays.equals(starCard, deck)){
-                System.out.println("YAY u bithh did it");
+                System.out.println("Congrats! You did it.");
                 break;
             }
             selectTwoCards();
         }
-
-
     }
-
     public String[] getCards(){
         return this.cards;
     }
-
     private void starCards(){
         for(int i=0;i<DECK_SIZE;i++){
             this.starCard[i] = "*";
@@ -71,10 +67,8 @@ class Cards{
             reduceCards(randomInt);
         }
     }
-
     // Makes main deck from n cards
     private void doublingDeck(){
-
         for (int i = 0, k = 0; i < NUMBER_OF_CARDS; i++){
             for(int j = 0; j < 2; j++){
                 deck[k] = sixRandomCards[i];
@@ -82,7 +76,7 @@ class Cards{
             }
         }
     }
-
+    
     private void shuffleDeck(){
         String temp;
         for (int i = deck.length - 1 ; i >= 0 ; i--){
@@ -93,7 +87,7 @@ class Cards{
             deck[i] = temp;
         }
     }
-
+    
     public int returnCardIndex(String card){
         for (int i = 0; i < sixRandomCards.length; i++){
             if(sixRandomCards[i].equals(card))
@@ -101,34 +95,34 @@ class Cards{
         }
         return -1;
     }
-
     boolean cardsCompare(int firstCard , int secondCard ){
-            if (firstCard == secondCard){
-                return true;
-            }
-            return false;
+        if (firstCard == secondCard){
+            return true;
+        }
+        return false;
     }
-// enter 2 card. show 2 cards. if not same return to star
+    // enter 2 card. show 2 cards. if not same return to star
     private void selectTwoCards(){
         System.out.println();
         System.out.println(Arrays.toString(starCard));
         System.out.println("Select two cards: ");
-        int m,n;
-
+        int firstCard,secondCard;
+        
+        //input with error handling
         while (true) {
             try {
-                m = sc.nextInt();
-                n = sc.nextInt();
+                firstCard = sc.nextInt();
+                secondCard = sc.nextInt();
 
-                if (m <= deck.length && n <= deck.length && m > 0 && n > 0) {
-                    if (starCard[m - 1] != "*" && starCard[n - 1] != "*") {
-                        System.out.println("Card no " + m + " and " + n + " is already unlocked. Enter valid number:");
+                if (firstCard <= deck.length && secondCard <= deck.length && firstCard > 0 && secondCard > 0) {
+                    if (starCard[firstCard - 1] != "*" && starCard[secondCard - 1] != "*") {
+                        System.out.println("Card no " + firstCard + " and " + secondCard + " is already unlocked. Enter valid number:");
                         break;
-                    } else if (starCard[m - 1] != "*") {
-                        System.out.println("Card no " + m + " is already unlocked. Enter valid number:");
+                    } else if (starCard[firstCard - 1] != "*") {
+                        System.out.println("Card no " + firstCard + " is already unlocked. Enter valid number:");
                         break;
-                    } else if (starCard[n - 1] != "*"){
-                        System.out.println("Card no " + n + " is already unlocked. Enter valid number:");
+                    } else if (starCard[secondCard - 1] != "*"){
+                        System.out.println("Card no " + secondCard + " is already unlocked. Enter valid number:");
                         break;
                     }
                     break;
@@ -140,16 +134,40 @@ class Cards{
                 sc.next(); // Clear the invalid input
             }
         }
-
         // if 2 card same change value of permanently. else temporarily
-
-        if (deck[m-1] == deck[n-1]) {
-            this.starCard[m-1] = this.starCard[n-1] = deck[m-1];
+        if (deck[firstCard-1] == deck[secondCard-1]) {
+            this.starCard[firstCard-1] = this.starCard[secondCard-1] = deck[firstCard-1];
             if (Arrays.equals(this.starCard, this.deck))
                 System.out.println(Arrays.toString(this.starCard));
-        }else {
-            this.starCard[m-1] = deck[m-1];
-            this.starCard[n-1] = deck[n-1];
+        }else if( starCard[firstCard-1] != "*" ^ starCard[secondCard-1] != "*"){
+            if(starCard[firstCard-1] != "*"){
+                this.starCard[secondCard-1] = deck[secondCard-1];
+                System.out.println(Arrays.toString(this.starCard));
+                try {
+                    sleep(3000);
+                    printBlankLines();
+                }
+                catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                this.starCard[secondCard-1] = "*";
+
+            }else {
+                this.starCard[firstCard-1] = deck[firstCard-1];
+                System.out.println(Arrays.toString(this.starCard));
+                try {
+                    sleep(3000);
+                    printBlankLines();
+                }
+                catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                this.starCard[firstCard-1] = "*";
+            }
+        }
+        else {
+            this.starCard[firstCard-1] = deck[firstCard-1];
+            this.starCard[secondCard-1] = deck[secondCard-1];
             System.out.println(Arrays.toString(this.starCard));
             try {
                 sleep(3000);
@@ -158,11 +176,8 @@ class Cards{
             catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
-            this.starCard[m-1] = this.starCard[n-1] = "*";
-
+            this.starCard[firstCard-1] = this.starCard[secondCard-1] = "*";
         }
-
-
     }
 
     private void printCardNumber(){
@@ -171,14 +186,13 @@ class Cards{
             System.out.print(i+1 + ", ");
         }
     }
-
     private void printBlankLines() {
         int lines = 100;
         for (int i = 0; i < lines; i++) {
             System.out.println(); // Print a blank line
         }
     }
-    //Reducing Cards Function
+    //Deletes selected from deck Function
     private void reduceCards(int n){
         String newCards[] = new String[cards.length-1];
         for (int i = 0, j = 0; i < cards.length; i++){
@@ -187,6 +201,4 @@ class Cards{
         }
         this.cards = newCards;
     }
-
-
 }
